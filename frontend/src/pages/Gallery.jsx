@@ -6,7 +6,7 @@ const Gallery = () => {
     { id: 2, category: 'Decorations', url: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=800' },
     { id: 3, category: 'Dining', url: 'https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=800' },
     { id: 4, category: 'Hall', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800' },
-    { id: 5, category: 'Decorations', url: 'https://images.unsplash.com/photo-1530103862676-de889279691b?q=80&w=800' },
+    { id: 5, category: 'Decorations', url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=800' },
     { id: 6, category: 'Dining', url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800' },
     { id: 7, category: 'Hall', url: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?q=80&w=800' },
     { id: 8, category: 'Decorations', url: 'https://images.unsplash.com/photo-1507504031003-b417219a0fde?q=80&w=800' },
