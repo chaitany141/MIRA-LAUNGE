@@ -30,7 +30,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               <li>123 Luxury Avenue</li>
               <li>Sarojini Nagar, Delhi</li>
-              <li>+91 98765 43210</li>
+              <li>+91 1234567890</li>
               <li>info@miralounge.com</li>
             </ul>
           </div>
