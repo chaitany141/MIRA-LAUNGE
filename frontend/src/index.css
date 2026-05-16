@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mira-gold: #d4af37;
+  --color-mira-black: #0f0f0f;
+  --color-mira-dark: #1a1a1a;
+  --color-mira-light: #f5f5f5;
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-mira-black text-mira-light font-body antialiased selection:bg-mira-gold selection:text-mira-black;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-mira-gold font-normal;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-mira-dark/80 backdrop-blur-md border border-mira-gold/20 rounded-xl shadow-lg;
+  }
+  
+  .btn-gold {
+    @apply bg-gradient-to-r from-[#bf953f] via-[#fcf6ba] to-[#b38728] text-mira-black font-semibold rounded-md px-6 py-3 transition-all duration-300 hover:shadow-[0_0_15px_rgba(212,175,55,0.5)] hover:scale-105;
+  }
+  
+  .btn-outline-gold {
+    @apply border border-mira-gold text-mira-gold font-semibold rounded-md px-6 py-3 transition-all duration-300 hover:bg-mira-gold hover:text-mira-black;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f0f0f; 
+}
+::-webkit-scrollbar-thumb {
+  background: #d4af37; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bf953f; 
+}
