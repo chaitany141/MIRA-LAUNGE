@@ -28,7 +28,8 @@ const Booking = () => {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/send-otp', {
+      const API_BASE_URL = import.meta.env.MODE === 'production' ? 'https://mira-launge-1.onrender.com' : '';
+      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: authData.name, email: authData.email, phone: authData.phone })
@@ -56,7 +57,8 @@ const Booking = () => {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const API_BASE_URL = import.meta.env.MODE === 'production' ? 'https://mira-launge-1.onrender.com' : '';
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: authData.phone, otp: authData.otp })
