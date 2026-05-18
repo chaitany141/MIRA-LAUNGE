@@ -61,7 +61,7 @@ const Booking = () => {
       const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: authData.phone, otp: authData.otp })
+        body: JSON.stringify({ email: authData.email, phone: authData.phone, otp: authData.otp })
       });
       
       const contentType = res.headers.get("content-type");
@@ -116,10 +116,10 @@ const Booking = () => {
             </form>
           ) : (
             <form onSubmit={verifyOtp} className="space-y-4 animate-fade-in">
-               <p className="text-sm text-gray-400 mb-4 text-center">We've sent a 6-digit OTP to {authData.phone}</p>
+               <p className="text-sm text-gray-400 mb-4 text-center">We've sent a 4-digit OTP to {authData.email}</p>
                <div>
                 <label className="block text-gray-300 mb-2 text-sm">Enter OTP</label>
-                <input required type="text" maxLength="6" name="otp" value={authData.otp} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold text-center tracking-[0.5em] text-lg" placeholder="------" />
+                <input required type="text" maxLength="4" name="otp" value={authData.otp} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold text-center tracking-[0.5em] text-lg" placeholder="----" />
               </div>
               <button type="submit" disabled={isLoading} className="btn-gold w-full mt-4 flex justify-center">
                 {isLoading ? 'Verifying...' : 'Verify & Continue'}

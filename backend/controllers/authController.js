@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const nodemailer = require('nodemailer');
 
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
@@ -82,11 +83,11 @@ const sendOtp = async (req, res) => {
   }
 
   try {
-    let user = await User.findOne({ phone });
+    let user = await User.findOne({ email });
 
-    // If user doesn't exist by phone, check by email
+    // If user doesn't exist by email, check by phone
     if (!user) {
-      user = await User.findOne({ email });
+      user = await User.findOne({ phone });
     }
 
     if (!user) {
@@ -100,48 +101,42 @@ const sendOtp = async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     
     // Set OTP and expiration (e.g., 10 minutes)
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    console.log(`[MSG91 LOG] Generated OTP for ${phone} is ${otp}`);
+    console.log(`[EMAIL LOG] Generated OTP for ${email} is ${otp}`);
 
-    if (process.env.MSG91_AUTH_KEY) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
-        // Format phone number to include country code '91' if it's a 10 digit Indian number
-        const formattedPhone = phone.length === 10 ? `91${phone}` : phone.replace(/[^0-9]/g, '');
-        
-        let msg91Url = `https://control.msg91.com/api/v5/otp?mobile=${formattedPhone}&authkey=${process.env.MSG91_AUTH_KEY}&otp=${otp}`;
-        
-        // Add template_id if provided in .env
-        if (process.env.MSG91_TEMPLATE_ID) {
-          msg91Url += `&template_id=${process.env.MSG91_TEMPLATE_ID}`;
-        }
-
-        const msg91Response = await fetch(msg91Url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ OTP: otp, otp: otp })
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
         });
 
-        const msg91Data = await msg91Response.json();
-        console.log('[MSG91 RESPONSE]', msg91Data);
-        
-        if (msg91Data.type === 'error') {
-          console.error('[MSG91 ERROR]', msg91Data.message);
-        }
-      } catch (smsError) {
-        console.error('[MSG91 FETCH ERROR]', smsError);
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your OTP for Mira Lounge Booking',
+          text: `Your OTP for booking is ${otp}. It is valid for 10 minutes.`,
+          html: `<h3>Your Mira Lounge OTP</h3><p>Your OTP for booking is <b style="font-size: 20px; letter-spacing: 2px;">${otp}</b>.</p><p>It is valid for 10 minutes.</p>`
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('[EMAIL RESPONSE] OTP email sent successfully');
+      } catch (emailError) {
+        console.error('[EMAIL SEND ERROR]', emailError);
       }
     }
 
-    // We still return mockOtp for testing purposes if SMS fails
+    // We still return mockOtp for testing purposes if email fails
     res.status(200).json({ message: 'OTP processed', mockOtp: otp });
   } catch (error) {
     console.error(error);
@@ -153,14 +148,17 @@ const sendOtp = async (req, res) => {
 // @route   POST /api/auth/verify-otp
 // @access  Public
 const verifyOtp = async (req, res) => {
-  const { phone, otp } = req.body;
+  const { email, phone, otp } = req.body;
 
-  if (!phone || !otp) {
-    return res.status(400).json({ message: 'Phone and OTP are required' });
+  if ((!email && !phone) || !otp) {
+    return res.status(400).json({ message: 'Email/Phone and OTP are required' });
   }
 
   try {
-    const user = await User.findOne({ phone });
+    let user = await User.findOne({ email });
+    if (!user) {
+        user = await User.findOne({ phone });
+    }
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
