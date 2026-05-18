@@ -115,24 +115,19 @@ const sendOtp = async (req, res) => {
         // Format phone number to include country code '91' if it's a 10 digit Indian number
         const formattedPhone = phone.length === 10 ? `91${phone}` : phone.replace(/[^0-9]/g, '');
         
-        const msg91Url = 'https://api.msg91.com/api/v5/otp';
-        const msg91Body = {
-          mobile: formattedPhone,
-          otp: otp
-        };
+        let msg91Url = `https://control.msg91.com/api/v5/otp?mobile=${formattedPhone}&authkey=${process.env.MSG91_AUTH_KEY}&otp=${otp}`;
         
         // Add template_id if provided in .env
         if (process.env.MSG91_TEMPLATE_ID) {
-          msg91Body.template_id = process.env.MSG91_TEMPLATE_ID;
+          msg91Url += `&template_id=${process.env.MSG91_TEMPLATE_ID}`;
         }
 
         const msg91Response = await fetch(msg91Url, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'authkey': process.env.MSG91_AUTH_KEY
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(msg91Body)
+          body: JSON.stringify({ OTP: otp, otp: otp })
         });
 
         const msg91Data = await msg91Response.json();
