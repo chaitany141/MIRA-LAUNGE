@@ -22,11 +22,7 @@ Admins (hall owners) can manage:
 
 # 🌐 Live Demo
 
-Frontend:
-
-
-Backend API:
-
+https://mira-launge.vercel.app/
 
 Admin Demo Credentials:
 
