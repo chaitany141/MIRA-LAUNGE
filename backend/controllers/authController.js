@@ -72,10 +72,10 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Send OTP for login/booking
-// @route   POST /api/auth/send-otp
+// @desc    Guest login/register without OTP
+// @route   POST /api/auth/guest-login
 // @access  Public
-const sendOtp = async (req, res) => {
+const guestLogin = async (req, res) => {
   const { name, email, phone } = req.body;
 
   if (!phone || !name || !email) {
@@ -101,78 +101,6 @@ const sendOtp = async (req, res) => {
       });
     }
 
-    // Generate 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    
-    // Set OTP and expiration (e.g., 10 minutes)
-    user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000;
-    await user.save();
-
-    console.log(`[EMAIL LOG] Generated OTP for ${email} is ${otp}`);
-
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-          }
-        });
-
-        const mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: 'Your OTP for Mira Lounge Booking',
-          text: `Your OTP for booking is ${otp}. It is valid for 10 minutes.`,
-          html: `<h3>Your Mira Lounge OTP</h3><p>Your OTP for booking is <b style="font-size: 20px; letter-spacing: 2px;">${otp}</b>.</p><p>It is valid for 10 minutes.</p>`
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log('[EMAIL RESPONSE] OTP email sent successfully');
-      } catch (emailError) {
-        console.error('[EMAIL SEND ERROR]', emailError);
-      }
-    }
-
-    // We still return mockOtp for testing purposes if email fails
-    res.status(200).json({ message: 'OTP processed', mockOtp: otp });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error while sending OTP' });
-  }
-};
-
-// @desc    Verify OTP
-// @route   POST /api/auth/verify-otp
-// @access  Public
-const verifyOtp = async (req, res) => {
-  const { email, phone, otp } = req.body;
-
-  if ((!email && !phone) || !otp) {
-    return res.status(400).json({ message: 'Email/Phone and OTP are required' });
-  }
-
-  try {
-    let user = await User.findOne({ email });
-    if (!user) {
-        user = await User.findOne({ phone });
-    }
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (user.otp !== otp || user.otpExpires < Date.now()) {
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
-    }
-
-    // Clear OTP fields
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
-
     res.json({
       _id: user._id,
       name: user.name,
@@ -183,8 +111,8 @@ const verifyOtp = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error while verifying OTP' });
+    res.status(500).json({ message: 'Server error while logging in' });
   }
 };
 
-module.exports = { authUser, registerUser, getUserProfile, sendOtp, verifyOtp };
+module.exports = { authUser, registerUser, getUserProfile, guestLogin };

@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/api': 'https://mira-launge-1.onrender.com',
+      '/api': 'http://localhost:5000',
     },
   },
 })

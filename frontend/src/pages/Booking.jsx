@@ -2,8 +2,7 @@ import { useState } from 'react';
 
 const Booking = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authStep, setAuthStep] = useState(1);
-  const [authData, setAuthData] = useState({ name: '', email: '', phone: '', otp: '' });
+  const [authData, setAuthData] = useState({ name: '', email: '', phone: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,13 +22,13 @@ const Booking = () => {
     setAuthData({ ...authData, [e.target.name]: e.target.value });
   };
 
-  const sendOtp = async (e) => {
+  const handleGuestLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     try {
       const API_BASE_URL = import.meta.env.MODE === 'production' ? 'https://mira-launge-1.onrender.com' : '';
-      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/guest-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: authData.name, email: authData.email, phone: authData.phone })
@@ -41,36 +40,7 @@ const Booking = () => {
       }
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to send OTP');
-      
-      console.log('Mock OTP sent:', data.mockOtp);
-      setAuthStep(2);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const verifyOtp = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    try {
-      const API_BASE_URL = import.meta.env.MODE === 'production' ? 'https://mira-launge-1.onrender.com' : '';
-      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authData.email, phone: authData.phone, otp: authData.otp })
-      });
-      
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned a non-JSON response. Please ensure your backend server was restarted!");
-      }
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Invalid OTP');
+      if (!res.ok) throw new Error(data.message || 'Login failed');
       
       localStorage.setItem('userInfo', JSON.stringify(data));
       setIsAuthenticated(true);
@@ -90,45 +60,29 @@ const Booking = () => {
       <div className="py-24 max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-heading text-mira-gold mb-4">Login to Book</h1>
-          <p className="text-gray-300">Please verify your details to continue</p>
+          <p className="text-gray-300">Please provide your details to continue</p>
         </div>
 
         <div className="glass-card p-8">
           {error && <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded mb-6 text-sm">{error}</div>}
           
-          {authStep === 1 ? (
-            <form onSubmit={sendOtp} className="space-y-4 animate-fade-in">
-              <div>
-                <label className="block text-gray-300 mb-2 text-sm">Full Name</label>
-                <input required type="text" name="name" value={authData.name} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your full name" />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-2 text-sm">Email Address</label>
-                <input required type="email" name="email" value={authData.email} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your email" />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-2 text-sm">Phone Number</label>
-                <input required type="tel" name="phone" value={authData.phone} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your phone number" />
-              </div>
-              <button type="submit" disabled={isLoading} className="btn-gold w-full mt-4 flex justify-center">
-                {isLoading ? 'Sending...' : 'Send OTP'}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={verifyOtp} className="space-y-4 animate-fade-in">
-               <p className="text-sm text-gray-400 mb-4 text-center">We've sent a 4-digit OTP to {authData.email}</p>
-               <div>
-                <label className="block text-gray-300 mb-2 text-sm">Enter OTP</label>
-                <input required type="text" maxLength="4" name="otp" value={authData.otp} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold text-center tracking-[0.5em] text-lg" placeholder="----" />
-              </div>
-              <button type="submit" disabled={isLoading} className="btn-gold w-full mt-4 flex justify-center">
-                {isLoading ? 'Verifying...' : 'Verify & Continue'}
-              </button>
-              <button type="button" onClick={() => setAuthStep(1)} className="w-full text-sm text-mira-gold mt-4 hover:text-white transition-colors">
-                Change phone number
-              </button>
-            </form>
-          )}
+          <form onSubmit={handleGuestLogin} className="space-y-4 animate-fade-in">
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm">Full Name</label>
+              <input required type="text" name="name" value={authData.name} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your full name" />
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm">Email Address</label>
+              <input required type="email" name="email" value={authData.email} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your email" />
+            </div>
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm">Phone Number</label>
+              <input required type="tel" name="phone" value={authData.phone} onChange={handleAuthChange} className="w-full bg-mira-black border border-mira-gold/30 rounded-md px-4 py-3 text-white focus:outline-none focus:border-mira-gold" placeholder="Enter your phone number" />
+            </div>
+            <button type="submit" disabled={isLoading} className="btn-gold w-full mt-4 flex justify-center">
+              {isLoading ? 'Processing...' : 'Continue to Booking'}
+            </button>
+          </form>
         </div>
       </div>
     );
