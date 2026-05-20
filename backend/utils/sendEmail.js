@@ -11,6 +11,7 @@ const getTransporter = () => {
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,
+      family: 4, // Force IPv4 to resolve Render network issues
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
