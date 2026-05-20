@@ -7,6 +7,7 @@ import Gallery from './pages/Gallery';
 import Services from './pages/Services';
 import Booking from './pages/Booking';
 import AdminDashboard from './pages/AdminDashboard';
+import Payment from './pages/Payment';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/pay/:id" element={<Payment />} />
           </Routes>
         </main>
         <Footer />

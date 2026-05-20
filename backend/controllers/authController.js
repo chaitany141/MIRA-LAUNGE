@@ -1,40 +1,30 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
-const nodemailer = require('nodemailer');
+const sendEmail = require('../utils/sendEmail');
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
-
 const sendOTPEmail = async (email, otp) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP Code",
-    html: `
-      <h2>Your OTP is:</h2>
-      <h1>${otp}</h1>
-      <p>This OTP expires in 5 minutes.</p>
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #c5a880; border-radius: 8px; overflow: hidden; background-color: #0f0f11; color: #ffffff;">
+      <div style="background-color: #1a1a1d; padding: 20px; text-align: center; border-bottom: 2px solid #c5a880;">
+        <h1 style="color: #c5a880; margin: 0; font-size: 28px; letter-spacing: 2px;">MIRA LOUNGE</h1>
+      </div>
+      <div style="padding: 30px; text-align: center;">
+        <p style="font-size: 16px; color: #d1d5db; margin-bottom: 24px;">Please use the following One-Time Password (OTP) to log in to your account:</p>
+        <div style="font-size: 36px; font-weight: bold; color: #c5a880; background-color: #1e1e24; border: 1px dashed #c5a880; border-radius: 6px; padding: 15px; display: inline-block; letter-spacing: 5px; margin-bottom: 24px;">
+          ${otp}
+        </div>
+        <p style="font-size: 14px; color: #9ca3af; margin-top: 24px;">This code is valid for 5 minutes. Please do not share this OTP with anyone.</p>
+      </div>
+      <div style="background-color: #1a1a1d; padding: 15px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #27272a;">
+        &copy; 2026 Mira Lounge. All rights reserved.
+      </div>
+    </div>
+  `;
+  await sendEmail(email, "Your OTP Verification Code - Mira Lounge", html);
 };
 
 // @desc    Auth user & get token
